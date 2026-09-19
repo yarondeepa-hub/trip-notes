@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#fbfaf7">
+<title>Japan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&family=Inter:wght@400;500;600&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<style id="lock-css">
+/* unlock screen - direction B tokens: paper, ink, one forest-green button */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fbfaf7}
+body{font-family:'Heebo','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif;color:#141414;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.lock{min-height:100vh;min-height:100dvh;max-width:430px;margin:0 auto;padding:40px 28px;padding-bottom:calc(40px + env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:center}
+.lock-title{margin:0 0 34px;font:500 36px/1.1 'Frank Ruhl Libre','Times New Roman',serif;color:#141414;letter-spacing:-.005em}
+.lock.checking .lock-form{visibility:hidden}
+.lock-field{display:flex;align-items:center;border-bottom:1px solid #c6c3bc;padding-bottom:6px}
+.lock-field input{flex:1;min-width:0;font:400 17px/1.3 'Inter','Heebo',-apple-system,Arial,sans-serif;color:#141414;background:transparent;border:0;outline:0;padding:8px 0;border-radius:0;-webkit-appearance:none;appearance:none}
+.lock-field input::placeholder{color:#9a9a9a}
+.lock-show{font:500 11px/1 'Heebo',sans-serif;color:#5c5c5c;letter-spacing:.04em;background:none;border:0;padding:8px 0 8px 14px;cursor:pointer;-webkit-appearance:none;appearance:none}
+.lock-remember{display:flex;align-items:center;gap:10px;margin-top:22px;font:400 13px/1.4 'Heebo',sans-serif;color:#5c5c5c;cursor:pointer}
+.lock-remember input{width:16px;height:16px;margin:0;accent-color:#426239}
+.lock-err{margin:18px 0 0;font:400 13px/1.45 'Heebo',sans-serif;color:#141414}
+.lock-btn{display:block;width:100%;margin-top:30px;padding:15px 0;font:500 15px/1 'Heebo',sans-serif;letter-spacing:.02em;color:#fbfaf7;background:#426239;border:0;border-radius:3px;cursor:pointer;-webkit-appearance:none;appearance:none}
+.lock-btn:disabled{opacity:.55}
+</style>
+<style id="ov-css">
+/* in-page document viewer (stays after the app mounts) */
+.ov{position:fixed;inset:0;z-index:1000;background:#fbfaf7;display:flex;flex-direction:column}
+.ov[hidden]{display:none!important}
+.ov-bar{display:flex;align-items:center;gap:14px;padding:12px 16px 10px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid #dddbd6;background:#fbfaf7}
+.ov-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 13px/1.2 'Heebo',-apple-system,Arial,sans-serif;color:#141414}
+.ov-link{font:500 11px/1 'Heebo',sans-serif;color:#5c5c5c;letter-spacing:.04em;text-decoration:none;border-bottom:1px solid #c6c3bc;padding-bottom:2px;white-space:nowrap}
+.ov-close{font:500 12px/1 'Heebo',sans-serif;color:#141414;background:transparent;border:1px solid #c6c3bc;border-radius:3px;padding:7px 11px;cursor:pointer;-webkit-appearance:none;appearance:none}
+.ov-body{flex:1;position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#e9e7e2}
+.ov-body iframe{display:block;width:100%;height:100%;min-height:100%;border:0;background:#e9e7e2}
+.ov-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:400 13px/1.5 'Heebo',sans-serif;color:#5c5c5c;background:#fbfaf7}
+</style>
+</head>
+<body>
+<div id="lock" class="lock checking">
+  <form id="lock-form" class="lock-form" autocomplete="off" novalidate>
+    <h1 class="lock-title">Japan</h1>
+    <div class="lock-field">
+      <input id="lock-pass" type="password" placeholder="Passphrase" aria-label="Passphrase" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" enterkeyhint="go">
+      <button type="button" id="lock-show" class="lock-show" aria-pressed="false">show</button>
+    </div>
+    <label class="lock-remember"><input type="checkbox" id="lock-remember" checked> Remember me on this phone</label>
+    <p class="lock-err" id="lock-err" role="alert" hidden>That phrase did not open it. Try again.</p>
+    <button type="submit" class="lock-btn" id="lock-open">Open</button>
+  </form>
+</div>
+<script>
+(function () {
+  'use strict';
+  var CFG = {"salt_b64":"jjWtJA0XLLIxdj3AYfwcsw==","iterations":300000,"ns":"r/213fca042729ca8e"};
+  var STORE = 'rider-key:' + CFG.ns;
+  var subtle = window.crypto && window.crypto.subtle;
+  var $ = function (id) { return document.getElementById(id); };
+  var lock = $('lock'), form = $('lock-form'), pass = $('lock-pass'), show = $('lock-show'), remember = $('lock-remember'), err = $('lock-err'), btn = $('lock-open');
+  var ERR_PHRASE = 'That phrase did not open it. Try again.';
+  var ERR_NET = 'Could not load. Check the connection and try again.';
+  var KEY = null, docCache = {}, bundleP = null;
+
+  // ---------------------------------------------------------------- bytes
+  function b64ToBytes(b64) { var s = atob(b64), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+  function bytesToB64(bytes) { var s = ''; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+  function norm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
+  // ---------------------------------------------------------------- crypto
+  function deriveKey(phrase) {
+    return subtle.importKey('raw', new TextEncoder().encode(norm(phrase)), 'PBKDF2', false, ['deriveKey']).then(function (base) {
+      return subtle.deriveKey({ name: 'PBKDF2', salt: b64ToBytes(CFG.salt_b64), iterations: CFG.iterations, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+    });
+  }
+  function loadStoredKey() {
+    var b64 = null;
+    try { b64 = localStorage.getItem(STORE); } catch (e) { }
+    if (!b64) return Promise.resolve(null);
+    return subtle.importKey('raw', b64ToBytes(b64), { name: 'AES-GCM' }, false, ['decrypt']).catch(function () { return null; });
+  }
+  function storeKey(key) {
+    return subtle.exportKey('raw', key).then(function (raw) { try { localStorage.setItem(STORE, bytesToB64(new Uint8Array(raw))); } catch (e) { } }).catch(function () { });
+  }
+  function forget() { try { localStorage.removeItem(STORE); } catch (e) { } }
+  function fetchBytes(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('net'); return r.arrayBuffer(); }).then(function (b) { return new Uint8Array(b); });
+  }
+  function openBox(key, bytes) {
+    // layout: 12-byte IV, then AES-GCM ciphertext with its 16-byte tag
+    return subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(0, 12) }, key, bytes.slice(12));
+  }
+  function wrongKey(e) { var ex = new Error('phrase'); ex.phrase = true; ex.cause = e; return ex; }
+
+  // ---------------------------------------------------------------- documents (PDF) overlay
+  var OVERLAY = '<div id="ov" class="ov" hidden>' +
+    '<div class="ov-bar"><span class="ov-title" id="ov-title"></span><a id="ov-tab" class="ov-link" target="_blank" rel="noopener" hidden>Open in tab</a><button type="button" id="ov-close" class="ov-close">Close</button></div>' +
+    '<div class="ov-body"><iframe id="ov-frame" title="Document" src="about:blank"></iframe><div class="ov-msg" id="ov-msg" hidden></div></div></div>';
+  function overlay(url, title, msg) {
+    var ov = $('ov'); if (!ov) return;
+    ov.hidden = false;
+    $('ov-title').textContent = title || 'Document';
+    var msgEl = $('ov-msg'), tab = $('ov-tab'), fr = $('ov-frame');
+    msgEl.hidden = !msg; msgEl.textContent = msg || '';
+    tab.hidden = !url; if (url) tab.href = url;
+    fr.src = url || 'about:blank';
+    document.documentElement.style.overflow = 'hidden';
+  }
+  function closeOverlay() {
+    var ov = $('ov'); if (!ov || ov.hidden) return;
+    ov.hidden = true; $('ov-frame').src = 'about:blank';
+    document.documentElement.style.overflow = '';
+  }
+  function openDoc(href, label) {
+    var enc = window.RIDER_DOCS && window.RIDER_DOCS[href];
+    if (!enc || !KEY) return;
+    if (docCache[href]) { overlay(docCache[href], label); return; }
+    overlay(null, label, 'Opening');
+    fetchBytes(enc).then(function (bytes) { return openBox(KEY, bytes); }).then(function (pdf) {
+      var url = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
+      docCache[href] = url;
+      var ov = $('ov'); if (ov && !ov.hidden && $('ov-title').textContent === (label || 'Document')) overlay(url, label);
+    }).catch(function () { overlay(null, label, 'Could not open this document. Check the connection and try again.'); });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest('#ov-close')) { e.preventDefault(); closeOverlay(); return; }
+    var a = t.closest('a[href]');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('docs/') !== 0) return;
+    e.preventDefault();
+    openDoc(href, (a.textContent || 'Document').trim());
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeOverlay(); });
+
+  // ---------------------------------------------------------------- mount the decrypted app
+  function mount(bundle) {
+    var doc = new DOMParser().parseFromString(bundle.html, 'text/html');
+    var media = {};
+    Object.keys(bundle.media || {}).forEach(function (name) {
+      var m = bundle.media[name];
+      media[name] = URL.createObjectURL(new Blob([b64ToBytes(m.b64)], { type: m.type || 'application/octet-stream' }));
+    });
+    window.RIDER_TRIP = bundle.trip;
+    window.RIDER_MEDIA = media;
+    window.RIDER_DOCS = bundle.docs || {};
+    var css = document.createElement('style'); css.id = 'app-css'; css.textContent = bundle.css;
+    var lockCss = $('lock-css');
+    document.title = 'Japan';
+    document.body.innerHTML = doc.body.innerHTML + OVERLAY;
+    if (lockCss) lockCss.parentNode.removeChild(lockCss);
+    document.head.appendChild(css);
+    var js = document.createElement('script'); js.textContent = bundle.js; document.body.appendChild(js);
+  }
+
+  // ---------------------------------------------------------------- unlock flow
+  function unlockWith(key, rememberIt, fromStore) {
+    return bundleP.then(function (bytes) {
+      return openBox(key, bytes).catch(function (e) { if (fromStore) forget(); throw wrongKey(e); });
+    }).then(function (plain) {
+      var bundle = JSON.parse(new TextDecoder().decode(plain));
+      KEY = key;
+      return (rememberIt ? storeKey(key) : Promise.resolve(forget())).then(function () { mount(bundle); });
+    });
+  }
+  function showForm() { lock.classList.remove('checking'); }
+  function fail(e) {
+    err.textContent = (e && e.phrase) ? ERR_PHRASE : ERR_NET;
+    err.hidden = false;
+    btn.disabled = false; btn.textContent = 'Open';
+    if (e && e.phrase) { pass.focus(); pass.select(); }
+    if (!(e && e.phrase)) { bundleP = fetchBytes('bundle.enc'); bundleP.catch(function () { }); } // retry the download next time
+  }
+  function init() {
+    if (!subtle || !window.TextEncoder || !window.fetch) { showForm(); form.innerHTML = '<h1 class="lock-title">Japan</h1><p class="lock-err">This browser cannot open the page.</p>'; return; }
+    bundleP = fetchBytes('bundle.enc');
+    bundleP.catch(function () { }); // handled where it is awaited
+    loadStoredKey().then(function (stored) {
+      if (!stored) { showForm(); return; }
+      return unlockWith(stored, true, true).catch(function () { showForm(); });
+    });
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    err.hidden = true;
+    if (!norm(pass.value)) { pass.focus(); return; }
+    btn.disabled = true; btn.textContent = 'Opening';
+    deriveKey(pass.value).then(function (key) { return unlockWith(key, remember.checked, false); }).catch(fail);
+  });
+  show.addEventListener('click', function () {
+    var hidden = pass.type === 'password';
+    pass.type = hidden ? 'text' : 'password';
+    show.textContent = hidden ? 'hide' : 'show';
+    show.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    pass.focus();
+  });
+  init();
+})();
+</script>
+</body>
+</html>

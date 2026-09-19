@@ -1,0 +1,55 @@
+{
+  "v": 1,
+  "iterations": 300000,
+  "salt_b64": "jjWtJA0XLLIxdj3AYfwcsw==",
+  "files": [
+    {
+      "name": "bundle.enc",
+      "size": 3134317
+    },
+    {
+      "name": "docs/d01.pdf.enc",
+      "size": 240846
+    },
+    {
+      "name": "docs/d02.pdf.enc",
+      "size": 706208
+    },
+    {
+      "name": "docs/d03.pdf.enc",
+      "size": 217252
+    },
+    {
+      "name": "docs/d04.pdf.enc",
+      "size": 537999
+    },
+    {
+      "name": "docs/d05.pdf.enc",
+      "size": 211986
+    },
+    {
+      "name": "docs/d06.pdf.enc",
+      "size": 220466
+    },
+    {
+      "name": "docs/d07.pdf.enc",
+      "size": 126358
+    },
+    {
+      "name": "docs/d08.pdf.enc",
+      "size": 133931
+    },
+    {
+      "name": "docs/d09.pdf.enc",
+      "size": 225399
+    },
+    {
+      "name": "docs/d10.pdf.enc",
+      "size": 252133
+    },
+    {
+      "name": "docs/d11.pdf.enc",
+      "size": 1235017
+    }
+  ]
+}
