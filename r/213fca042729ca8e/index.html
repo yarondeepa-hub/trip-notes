@@ -36,8 +36,8 @@ body{font-family:'Heebo','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif
 .ov-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 13px/1.2 'Heebo',-apple-system,Arial,sans-serif;color:#141414}
 .ov-link{font:500 11px/1 'Heebo',sans-serif;color:#5c5c5c;letter-spacing:.04em;text-decoration:none;border-bottom:1px solid #c6c3bc;padding-bottom:2px;white-space:nowrap}
 .ov-close{font:500 12px/1 'Heebo',sans-serif;color:#141414;background:transparent;border:1px solid #c6c3bc;border-radius:3px;padding:7px 11px;cursor:pointer;-webkit-appearance:none;appearance:none}
-.ov-body{flex:1;position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#e9e7e2}
-.ov-body iframe{display:block;width:100%;height:100%;min-height:100%;border:0;background:#e9e7e2}
+.ov-body{flex:1;position:relative;overflow:auto;-webkit-overflow-scrolling:touch;background:#e9e7e2;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}
+.ov-body img{display:block;width:100%;height:auto;margin:0 0 10px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .ov-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:400 13px/1.5 'Heebo',sans-serif;color:#5c5c5c;background:#fbfaf7}
 </style>
 </head>
@@ -97,34 +97,50 @@ body{font-family:'Heebo','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif
   function wrongKey(e) { var ex = new Error('phrase'); ex.phrase = true; ex.cause = e; return ex; }
 
   // ---------------------------------------------------------------- documents (PDF) overlay
+  // The pages are pre-rendered images (a phone cannot be trusted to show a PDF inline - Android Chrome shows nothing);
+  // the PDF itself is decrypted alongside and offered as "Open PDF" for saving it or showing it at a desk.
   var OVERLAY = '<div id="ov" class="ov" hidden>' +
-    '<div class="ov-bar"><span class="ov-title" id="ov-title"></span><a id="ov-tab" class="ov-link" target="_blank" rel="noopener" hidden>Open in tab</a><button type="button" id="ov-close" class="ov-close">Close</button></div>' +
-    '<div class="ov-body"><iframe id="ov-frame" title="Document" src="about:blank"></iframe><div class="ov-msg" id="ov-msg" hidden></div></div></div>';
-  function overlay(url, title, msg) {
+    '<div class="ov-bar"><span class="ov-title" id="ov-title"></span><a id="ov-pdf" class="ov-link" target="_blank" rel="noopener" hidden>Open PDF</a><button type="button" id="ov-close" class="ov-close">Close</button></div>' +
+    '<div class="ov-body" id="ov-body"><div class="ov-msg" id="ov-msg" hidden></div></div></div>';
+  var ERR_DOC = 'Could not open this document. Check the connection and try again.';
+  var ovCurrent = null;
+  function overlay(href, label, entry, msg) {
     var ov = $('ov'); if (!ov) return;
+    ovCurrent = href;
     ov.hidden = false;
-    $('ov-title').textContent = title || 'Document';
-    var msgEl = $('ov-msg'), tab = $('ov-tab'), fr = $('ov-frame');
+    $('ov-title').textContent = label || 'Document';
+    var body = $('ov-body'), msgEl = $('ov-msg'), pdf = $('ov-pdf');
+    Array.prototype.slice.call(body.querySelectorAll('img')).forEach(function (im) { body.removeChild(im); });
+    ((entry && entry.pages) || []).forEach(function (p) {
+      var im = document.createElement('img'); im.src = p.url; im.width = p.w; im.height = p.h; im.alt = ''; body.appendChild(im);
+    });
     msgEl.hidden = !msg; msgEl.textContent = msg || '';
-    tab.hidden = !url; if (url) tab.href = url;
-    fr.src = url || 'about:blank';
+    pdf.hidden = !(entry && entry.pdf); if (entry && entry.pdf) pdf.href = entry.pdf;
+    body.scrollTop = 0;
     document.documentElement.style.overflow = 'hidden';
   }
   function closeOverlay() {
     var ov = $('ov'); if (!ov || ov.hidden) return;
-    ov.hidden = true; $('ov-frame').src = 'about:blank';
+    ov.hidden = true; ovCurrent = null;
     document.documentElement.style.overflow = '';
   }
   function openDoc(href, label) {
     var enc = window.RIDER_DOCS && window.RIDER_DOCS[href];
-    if (!enc || !KEY) return;
-    if (docCache[href]) { overlay(docCache[href], label); return; }
-    overlay(null, label, 'Opening');
-    fetchBytes(enc).then(function (bytes) { return openBox(KEY, bytes); }).then(function (pdf) {
-      var url = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
-      docCache[href] = url;
-      var ov = $('ov'); if (ov && !ov.hidden && $('ov-title').textContent === (label || 'Document')) overlay(url, label);
-    }).catch(function () { overlay(null, label, 'Could not open this document. Check the connection and try again.'); });
+    if (!enc || !enc.pages || !KEY) return;
+    var entry = docCache[href];
+    if (entry && entry.pages) { overlay(href, label, entry); return; }
+    entry = docCache[href] = { pages: null, pdf: (entry && entry.pdf) || null, err: false };
+    overlay(href, label, entry, 'Opening');
+    var refresh = function () { if (ovCurrent === href) overlay(href, label, entry, entry.pages ? '' : (entry.err ? ERR_DOC : 'Opening')); };
+    fetchBytes(enc.pages).then(function (bytes) { return openBox(KEY, bytes); }).then(function (plain) {
+      var data = JSON.parse(new TextDecoder().decode(plain));
+      entry.pages = (data.pages || []).map(function (p) { return { url: URL.createObjectURL(new Blob([b64ToBytes(p.b64)], { type: p.type || 'image/jpeg' })), w: p.w, h: p.h }; });
+      refresh();
+    }).catch(function () { entry.err = true; refresh(); });
+    if (!entry.pdf) fetchBytes(enc.pdf).then(function (bytes) { return openBox(KEY, bytes); }).then(function (pdf) {
+      entry.pdf = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
+      refresh();
+    }).catch(function () { /* the pages are the viewer; the PDF link just stays hidden */ });
   }
   document.addEventListener('click', function (e) {
     var t = e.target;

@@ -5,51 +5,95 @@
   "files": [
     {
       "name": "bundle.enc",
-      "size": 3134317
+      "size": 3134790
     },
     {
       "name": "docs/d01.pdf.enc",
       "size": 240846
     },
     {
+      "name": "docs/d01.pages.enc",
+      "size": 532679
+    },
+    {
       "name": "docs/d02.pdf.enc",
       "size": 706208
+    },
+    {
+      "name": "docs/d02.pages.enc",
+      "size": 606512
     },
     {
       "name": "docs/d03.pdf.enc",
       "size": 217252
     },
     {
+      "name": "docs/d03.pages.enc",
+      "size": 327747
+    },
+    {
       "name": "docs/d04.pdf.enc",
       "size": 537999
+    },
+    {
+      "name": "docs/d04.pages.enc",
+      "size": 307854
     },
     {
       "name": "docs/d05.pdf.enc",
       "size": 211986
     },
     {
+      "name": "docs/d05.pages.enc",
+      "size": 263822
+    },
+    {
       "name": "docs/d06.pdf.enc",
       "size": 220466
+    },
+    {
+      "name": "docs/d06.pages.enc",
+      "size": 255242
     },
     {
       "name": "docs/d07.pdf.enc",
       "size": 126358
     },
     {
+      "name": "docs/d07.pages.enc",
+      "size": 259678
+    },
+    {
       "name": "docs/d08.pdf.enc",
       "size": 133931
+    },
+    {
+      "name": "docs/d08.pages.enc",
+      "size": 314254
     },
     {
       "name": "docs/d09.pdf.enc",
       "size": 225399
     },
     {
+      "name": "docs/d09.pages.enc",
+      "size": 270570
+    },
+    {
       "name": "docs/d10.pdf.enc",
       "size": 252133
     },
     {
+      "name": "docs/d10.pages.enc",
+      "size": 169146
+    },
+    {
       "name": "docs/d11.pdf.enc",
       "size": 1235017
+    },
+    {
+      "name": "docs/d11.pages.enc",
+      "size": 619909
     }
   ]
 }
