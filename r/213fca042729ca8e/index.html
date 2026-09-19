@@ -31,7 +31,7 @@ body{font-family:'Heebo','Inter',-apple-system,'Helvetica Neue',Arial,sans-serif
 <style id="ov-css">
 /* in-page document viewer (stays after the app mounts) */
 .ov{position:fixed;inset:0;z-index:1000;background:#fbfaf7;display:flex;flex-direction:column}
-.ov[hidden]{display:none!important}
+.ov[hidden],.ov-msg[hidden],.ov-link[hidden]{display:none!important}
 .ov-bar{display:flex;align-items:center;gap:14px;padding:12px 16px 10px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid #dddbd6;background:#fbfaf7}
 .ov-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 13px/1.2 'Heebo',-apple-system,Arial,sans-serif;color:#141414}
 .ov-link{font:500 11px/1 'Heebo',sans-serif;color:#5c5c5c;letter-spacing:.04em;text-decoration:none;border-bottom:1px solid #c6c3bc;padding-bottom:2px;white-space:nowrap}
