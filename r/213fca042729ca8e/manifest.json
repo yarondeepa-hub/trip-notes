@@ -5,7 +5,7 @@
   "files": [
     {
       "name": "bundle.enc",
-      "size": 5438412
+      "size": 5441918
     },
     {
       "name": "docs/d01.pdf.enc",
@@ -25,19 +25,19 @@
     },
     {
       "name": "docs/d03.pdf.enc",
-      "size": 706208
+      "size": 932248
     },
     {
       "name": "docs/d03.pages.enc",
-      "size": 606512
+      "size": 601456
     },
     {
       "name": "docs/d04.pdf.enc",
-      "size": 217252
+      "size": 434894
     },
     {
       "name": "docs/d04.pages.enc",
-      "size": 327747
+      "size": 329867
     },
     {
       "name": "docs/d05.pdf.enc",
@@ -150,6 +150,14 @@
     {
       "name": "docs/d18.pages.enc",
       "size": 173106
+    },
+    {
+      "name": "docs/d19.pdf.enc",
+      "size": 55737
+    },
+    {
+      "name": "docs/d19.pages.enc",
+      "size": 148454
     }
   ]
 }
